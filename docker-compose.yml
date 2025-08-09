@@ -19,11 +19,9 @@ services:
       # - JWT_SECRET=secret
       # - JWT_HEADER=Authorization
       # - JWT_IN_BODY=true
-    # ❌ sem ports para não conflitar com o proxy do Dokploy
     expose:
       - "80"
     healthcheck:
-      # O DocumentServer responde em /healthcheck (porta 80 dentro do container)
       test: ["CMD", "curl", "-fsS", "http://localhost/healthcheck"]
       interval: 30s
       retries: 5
@@ -38,6 +36,8 @@ services:
       - /var/lib/onlyoffice/documentserver/App_Data/cache/files
       - /var/www/onlyoffice/documentserver-example/public/files
       - /usr/share/fonts
+    networks:
+      - dokploy-network
 
   onlyoffice-rabbitmq:
     container_name: onlyoffice-rabbitmq
@@ -51,6 +51,8 @@ services:
       retries: 3
       start_period: 10s
       timeout: 10s
+    networks:
+      - dokploy-network
 
   onlyoffice-postgresql:
     container_name: onlyoffice-postgresql
@@ -70,6 +72,13 @@ services:
       retries: 3
       start_period: 10s
       timeout: 10s
+    networks:
+      - dokploy-network
 
 volumes:
   postgresql_data:
+
+networks:
+  dokploy-network:
+    external: true
+    name: dokploy-network
